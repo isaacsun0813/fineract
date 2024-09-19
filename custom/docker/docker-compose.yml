@@ -35,6 +35,7 @@ services:
     ports:
       - "3306:3306"
   fineract-server:
+    platform: linux/amd64
     image: fineract-custom:latest
     volumes:
       - ../../fineract-provider/build/data:/data

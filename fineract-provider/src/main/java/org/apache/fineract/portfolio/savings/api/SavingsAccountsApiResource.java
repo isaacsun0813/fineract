@@ -114,6 +114,7 @@ public class SavingsAccountsApiResource {
         return toApiJsonSerializer.serialize(settings, savingsAccount, SavingsApiSetConstants.SAVINGS_ACCOUNT_RESPONSE_DATA_PARAMETERS);
     }
 
+    // This is the original code snippet. We are adding on additional query parameters on this endpoint.
     @GET
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
@@ -128,14 +129,19 @@ public class SavingsAccountsApiResource {
             @QueryParam("offset") @Parameter(description = "offset") final Integer offset,
             @QueryParam("limit") @Parameter(description = "limit") final Integer limit,
             @QueryParam("orderBy") @Parameter(description = "orderBy") final String orderBy,
-            @QueryParam("sortOrder") @Parameter(description = "sortOrder") final String sortOrder) {
+            @QueryParam("sortOrder") @Parameter(description = "sortOrder") final String sortOrder,
+            // Usually I wouldn't comment this but here I am adding the @Parameter to maintain swagger consistency with
+            // the rest of the code.
+            @QueryParam("birthMonth") @Parameter(description = "Month of birth") final Integer birthMonth,
+            @QueryParam("birthDay") @Parameter(description = "Day of birth") final Integer birthDay,
+            @QueryParam("birthYear") @Parameter(description = "Year of birth (optional)") final Integer birthYear) {
 
         context.authenticatedUser().validateHasReadPermission(SavingsApiConstants.SAVINGS_ACCOUNT_RESOURCE_NAME);
 
-        final SearchParameters searchParameters = SearchParameters.forSavings(sqlSearch, externalId, offset, limit, orderBy, sortOrder);
+        final SearchParameters searchParameters = SearchParameters.forSavings(sqlSearch, externalId, offset, limit, orderBy, sortOrder,
+                birthDay, birthMonth, birthYear);
 
         final Page<SavingsAccountData> products = savingsAccountReadPlatformService.retrieveAll(searchParameters);
-
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return toApiJsonSerializer.serialize(settings, products, SavingsApiSetConstants.SAVINGS_ACCOUNT_RESPONSE_DATA_PARAMETERS);
     }

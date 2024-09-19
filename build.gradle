@@ -18,6 +18,16 @@
  */
 // TODO: this is work in progress, please follow FINERACT-1171
 buildscript {
+    configurations.classpath {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'com.burgstaller' &&
+                    details.requested.name == 'okhttp-digest' &&
+                    details.requested.version == '1.10') {
+                details.useTarget "io.github.rburgst:${details.requested.name}:1.21"
+                details.because 'Dependency has moved'
+            }
+        }
+    }
     ext {
         jacocoVersion = '0.8.10'
         retrofitVersion = '2.9.0'
@@ -352,6 +362,25 @@ configure(project.fineractJavaProjects) {
 
     dependencies {
         spotbugsPlugins 'jp.skypencil.findbugs.slf4j:bug-pattern:1.5.0@jar'
+        // Add these in for our tests
+        testImplementation 'io.rest-assured:rest-assured:4.4.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+        testImplementation 'org.mockito:mockito-core:4.0.0'
+        testImplementation 'org.mockito:mockito-junit-jupiter:4.0.0'
+        testImplementation 'org.assertj:assertj-core:3.19.0'
+
+        // Existing dependencies
+        testImplementation('org.mockito:mockito-core',
+                'org.mockito:mockito-junit-jupiter',
+                'org.junit.jupiter:junit-jupiter-api',
+                'org.junit.jupiter:junit-jupiter-engine',
+                'org.bouncycastle:bcpkix-jdk15to18',
+                'org.bouncycastle:bcprov-jdk15to18',
+                'org.awaitility:awaitility',
+                'com.google.truth:truth',
+                'com.google.truth.extensions:truth-java8-extension'
+                )
     }
 
     // Configuration for the spotless plugin
@@ -408,6 +437,7 @@ configure(project.fineractJavaProjects) {
     dependencies {
         checkstyle 'com.puppycrawl.tools:checkstyle:10.12.1'
         checkstyle 'com.github.sevntu-checkstyle:sevntu-checks:1.44.1'
+
     }
 
     // Configuration for JaCoCo code coverage task

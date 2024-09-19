@@ -24,7 +24,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -180,21 +179,25 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
 
     @Override
     public Page<SavingsAccountData> retrieveAll(final SearchParameters searchParameters) {
-
         final AppUser currentUser = this.context.authenticatedUser();
         final String hierarchy = currentUser.getOffice().getHierarchy();
         final String hierarchySearchString = hierarchy + "%";
 
         final StringBuilder sqlBuilder = new StringBuilder(200);
-        sqlBuilder.append("select " + sqlGenerator.calcFoundRows() + " ");
+        sqlBuilder.append("select ").append(sqlGenerator.calcFoundRows()).append(" ");
         sqlBuilder.append(this.savingAccountMapper.schema());
 
         sqlBuilder.append(" join m_office o on o.id = c.office_id");
         sqlBuilder.append(" where o.hierarchy like ?");
 
-        final Object[] objectArray = new Object[2];
-        objectArray[0] = hierarchySearchString;
-        int arrayPos = 1;
+        // Use an ArrayList for dynamic parameter management
+        /*
+         * This is a purposeful design choice. It doesn't make sense to set it as a fixed size array because the number
+         * of parameters is dynamic.
+         */
+        final List<Object> objectList = new ArrayList<>();
+        objectList.add(hierarchySearchString);
+
         if (searchParameters != null) {
             String sqlQueryCriteria = searchParameters.getSqlSearch();
             if (StringUtils.isNotBlank(sqlQueryCriteria)) {
@@ -205,14 +208,14 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
 
             if (StringUtils.isNotBlank(searchParameters.getExternalId())) {
                 sqlBuilder.append(" and sa.external_id = ?");
-                objectArray[arrayPos] = searchParameters.getExternalId();
-                arrayPos = arrayPos + 1;
+                objectList.add(searchParameters.getExternalId());
             }
+
             if (searchParameters.getOfficeId() != null) {
-                sqlBuilder.append("and c.office_id =?");
-                objectArray[arrayPos] = searchParameters.getOfficeId();
-                arrayPos = arrayPos + 1;
+                sqlBuilder.append(" and c.office_id = ?");
+                objectList.add(searchParameters.getOfficeId());
             }
+
             if (searchParameters.isOrderByRequested()) {
                 sqlBuilder.append(" order by ").append(searchParameters.getOrderBy());
                 this.columnValidator.validateSqlInjection(sqlBuilder.toString(), searchParameters.getOrderBy());
@@ -221,6 +224,21 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
                     sqlBuilder.append(' ').append(searchParameters.getSortOrder());
                     this.columnValidator.validateSqlInjection(sqlBuilder.toString(), searchParameters.getSortOrder());
                 }
+            }
+            // Handle birthDay, birthMonth, and birthYear filters
+            if (searchParameters.getBirthDay() != null && searchParameters.getBirthMonth() != null) {
+
+                sqlBuilder.append(" and DAY(c.date_of_birth) = ? and MONTH(c.date_of_birth) = ?");
+                objectList.add(searchParameters.getBirthDay());
+                objectList.add(searchParameters.getBirthMonth());
+
+                if (searchParameters.getBirthYear() != null) {
+                    sqlBuilder.append(" and YEAR(c.date_of_birth) = ?");
+                    objectList.add(searchParameters.getBirthYear());
+                }
+                System.out.println("wooo we made it to the end!");
+                System.out.println(sqlBuilder.toString());
+
             }
 
             if (searchParameters.isLimited()) {
@@ -231,8 +249,12 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
                     sqlBuilder.append(sqlGenerator.limit(searchParameters.getLimit()));
                 }
             }
+
         }
-        final Object[] finalObjectArray = Arrays.copyOf(objectArray, arrayPos);
+
+        // Convert List to array before passing to the fetchPage method
+        final Object[] finalObjectArray = objectList.toArray();
+
         return this.paginationHelper.fetchPage(this.jdbcTemplate, sqlBuilder.toString(), finalObjectArray, this.savingAccountMapper);
     }
 
