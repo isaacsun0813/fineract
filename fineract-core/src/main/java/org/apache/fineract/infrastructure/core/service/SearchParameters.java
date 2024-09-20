@@ -39,12 +39,9 @@ public final class SearchParameters {
     // We add in our own custom fields to allow for querying on top of birthDay, birthMonth, and birthYear
     private final Integer birthDay;
     private final Integer birthMonth;
-
     /*
      * For our hypothetical implementation, birthYear isn't particularly necessary, but we'll include it to allow for
      * future extensability of code
-     *
-     *
      */
     private final Integer birthYear;
     private final Long staffId;
@@ -437,6 +434,7 @@ public final class SearchParameters {
         this.categoryId = null;
         this.isSelfUser = false;
         this.status = null;
+        // Instantiating our field variables
         this.birthDay = null;
         this.birthMonth = null;
         this.birthYear = null;

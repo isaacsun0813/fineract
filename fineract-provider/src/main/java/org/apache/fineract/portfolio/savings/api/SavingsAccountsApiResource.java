@@ -114,7 +114,11 @@ public class SavingsAccountsApiResource {
         return toApiJsonSerializer.serialize(settings, savingsAccount, SavingsApiSetConstants.SAVINGS_ACCOUNT_RESPONSE_DATA_PARAMETERS);
     }
 
-    // This is the original code snippet. We are adding on additional query parameters on this endpoint.
+    // This is the original code snippet. We are adding on additional query parameters on this endpoint
+    /*
+     * It made the most sense to simply add on the birthday as a query parameter to the existing endpoint. This way, we can
+     * reuse the existing code 
+     */
     @GET
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
@@ -136,7 +140,7 @@ public class SavingsAccountsApiResource {
             @QueryParam("birthYear") @Parameter(description = "Year of birth (optional)") final Integer birthYear) {
 
         context.authenticatedUser().validateHasReadPermission(SavingsApiConstants.SAVINGS_ACCOUNT_RESOURCE_NAME);
-
+        // We made modifications to the SearchParameters and retrieveAll method. This way we can also maintain code consistency with the greater database
         final SearchParameters searchParameters = SearchParameters.forSavings(sqlSearch, externalId, offset, limit, orderBy, sortOrder,
                 birthDay, birthMonth, birthYear);
 

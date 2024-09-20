@@ -231,14 +231,11 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
                 sqlBuilder.append(" and DAY(c.date_of_birth) = ? and MONTH(c.date_of_birth) = ?");
                 objectList.add(searchParameters.getBirthDay());
                 objectList.add(searchParameters.getBirthMonth());
-
+                // This is only if birthYear is provided
                 if (searchParameters.getBirthYear() != null) {
                     sqlBuilder.append(" and YEAR(c.date_of_birth) = ?");
                     objectList.add(searchParameters.getBirthYear());
                 }
-                System.out.println("wooo we made it to the end!");
-                System.out.println(sqlBuilder.toString());
-
             }
 
             if (searchParameters.isLimited()) {

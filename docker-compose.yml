@@ -23,7 +23,7 @@ services:
   fineractmysql:
     image: mariadb:11.0
     volumes:
-      - fineract-db-data:/var/lib/mysql #added this so that the data is persisted
+      - fineract-db-data:/var/lib/mysql # Needed to store the database data
       - ./fineract-db/server_collation.cnf:/etc/mysql/conf.d/server_collation.cnf
       - ./fineract-db/docker:/docker-entrypoint-initdb.d:Z,ro
     restart: always
@@ -91,6 +91,6 @@ services:
       - FINERACT_DEFAULT_TENANTDB_NAME=fineract_default
       - FINERACT_DEFAULT_TENANTDB_DESCRIPTION=Default Demo Tenant
       - JAVA_TOOL_OPTIONS="-Xmx1G"
-# Volumes for the database
+# Volumes for the database. We need this otherwise the database is wiped whenever we compose down
 volumes:
   fineract-db-data:
