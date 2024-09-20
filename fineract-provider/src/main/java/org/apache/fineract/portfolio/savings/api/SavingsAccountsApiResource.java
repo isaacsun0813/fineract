@@ -130,8 +130,7 @@ public class SavingsAccountsApiResource {
             @QueryParam("limit") @Parameter(description = "limit") final Integer limit,
             @QueryParam("orderBy") @Parameter(description = "orderBy") final String orderBy,
             @QueryParam("sortOrder") @Parameter(description = "sortOrder") final String sortOrder,
-            // Usually I wouldn't comment this but here I am adding the @Parameter to maintain swagger consistency with
-            // the rest of the code.
+            //  I am adding the @Parameter to maintain swagger consistency with the rest of the code.
             @QueryParam("birthMonth") @Parameter(description = "Month of birth") final Integer birthMonth,
             @QueryParam("birthDay") @Parameter(description = "Day of birth") final Integer birthDay,
             @QueryParam("birthYear") @Parameter(description = "Year of birth (optional)") final Integer birthYear) {

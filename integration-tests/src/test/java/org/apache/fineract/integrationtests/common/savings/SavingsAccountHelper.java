@@ -629,6 +629,62 @@ public class SavingsAccountHelper {
         final ArrayList<HashMap> response = Utils.performServerGet(requestSpec, responseSpec, URL, jSONAttribute);
         return response;
     }
+    
+    
+    // We also add in a method to grab all of the available accounts 
+
+    public Integer getSavingsAccounts() {
+        // Get the response as a JSON string
+        return Utils.performServerGet(requestSpec, responseSpec, SAVINGS_ACCOUNT_URL + "?" + Utils.TENANT_IDENTIFIER, "totalFilteredRecords");
+    
+    }
+    
+    // Method to get savings accounts by birthday (Day and Month)
+    public List<HashMap> getSavingsAccountsByBirthday(int birthDay, int birthMonth) {
+        LOG.info("Retrieving savings accounts with birth day: {} and birth month: {}", birthDay, birthMonth);
+
+        // Perform the GET request to fetch the savings accounts
+        String responseJson = Utils.performServerGet(requestSpec, responseSpec,
+            SAVINGS_ACCOUNT_URL + "?" + Utils.TENANT_IDENTIFIER + "&birthDay=" + birthDay + "&birthMonth=" + birthMonth);
+
+        // Deserialize the response JSON into a HashMap
+        HashMap<String, Object> responseMap = GSON.fromJson(responseJson, HashMap.class);
+
+        // Extract the "pageItems" list from the response
+        List<HashMap> savingsAccounts = (List<HashMap>) responseMap.get("pageItems");
+
+        // Return the list of savings accounts
+        return savingsAccounts;
+}
+
+    // Add in a method to grab the Accounts by Birthday (Day, Month, and Year)
+    public List<HashMap> getSavingsAccountsByBirthdayAndYear(Integer birthDay, Integer birthMonth, Integer birthYear) {
+        LOG.info("Retrieving savings accounts with birthday on day {}, month {}, year {}", birthDay, birthMonth, birthYear);
+    
+        // Build the query parameters based on provided inputs
+        String queryParams = "";
+        if (birthDay != null) {
+            queryParams += "birthDay=" + birthDay + "&";
+        }
+        if (birthMonth != null) {
+            queryParams += "birthMonth=" + birthMonth + "&";
+        }
+        if (birthYear != null) {
+            queryParams += "birthYear=" + birthYear + "&";
+        }
+    
+        // Perform the GET request to fetch savings accounts by birthday and year
+        String response = Utils.performServerGet(this.requestSpec, this.responseSpec,
+                SAVINGS_ACCOUNT_URL + "/searchByBirthday?" + queryParams + Utils.TENANT_IDENTIFIER);
+    
+        // Parse the response into a list of savings accounts (HashMaps)
+        List<HashMap> savingsAccounts = new Gson().fromJson(response, new TypeToken<ArrayList<HashMap>>() {}.getType());
+    
+        LOG.info("Retrieved {} savings accounts matching the birthday and year.", savingsAccounts.size());
+        return savingsAccounts;
+    }
+    
+    
 
     public Object getSavingsAccountDetail(final Integer savingsID, final String jsonAttribute) {
         final String URL = SAVINGS_ACCOUNT_URL + "/" + savingsID + "?associations=all&" + Utils.TENANT_IDENTIFIER;
