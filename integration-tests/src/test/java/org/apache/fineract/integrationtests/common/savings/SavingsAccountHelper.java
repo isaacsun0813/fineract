@@ -687,9 +687,6 @@ public class SavingsAccountHelper {
         return savingsAccounts;
     }
     
-    
-    
-
     public Object getSavingsAccountDetail(final Integer savingsID, final String jsonAttribute) {
         final String URL = SAVINGS_ACCOUNT_URL + "/" + savingsID + "?associations=all&" + Utils.TENANT_IDENTIFIER;
         return Utils.performServerGet(requestSpec, responseSpec, URL, jsonAttribute);
